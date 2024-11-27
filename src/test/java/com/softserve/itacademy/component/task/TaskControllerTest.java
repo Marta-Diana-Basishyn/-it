@@ -46,6 +46,54 @@ class TaskControllerTest {
     @Autowired
     private MockMvc mvc;
 
-    //TODO
+    @Test
+    void TestReturnTaskCreationForm() throws Exception {
+        // Мокаємо отримання ToDo
+        when(todoService.readById(1L)).thenReturn(new ToDo());
+
+        // Виконуємо GET-запит
+        mvc.perform(get("/tasks/create/todos/1"))
+                .andExpect(status().isOk())
+                .andExpect(model().attributeExists("task", "todo", "priorities"));
+    }
+    @Test
+    void TestCreateTaskSuccessfully() throws Exception {
+        // Створюємо TaskDto для передачі у запит
+        TaskDto taskDto = new TaskDto(0L, "New Task", TaskPriority.HIGH.name(), 1L, 1L);
+
+        // Мокаємо виклик сервісу
+        when(taskService.create(any(TaskDto.class))).thenReturn(taskDto);
+
+        // Виконуємо POST-запит
+        mvc.perform(post("/tasks/create/todos/1")
+                        .flashAttr("task", taskDto))
+                .andExpect(status().is3xxRedirection())
+                .andExpect(redirectedUrl("/todos/1/tasks"));
+    }
+    @Test
+    void TestUpdateTaskSuccessfully() throws Exception {
+        // Створюємо TaskDto для оновлення
+        TaskDto taskDto = new TaskDto(1L, "Updated Task", TaskPriority.MEDIUM.name(), 1L, 2L);
+
+        // Мокаємо виклик сервісу
+        when(taskService.update(any(TaskDto.class))).thenReturn(taskDto);
+
+        // Виконуємо POST-запит
+        mvc.perform(post("/tasks/1/update/todos/1")
+                        .flashAttr("task", taskDto))
+                .andExpect(status().is3xxRedirection())
+                .andExpect(redirectedUrl("/todos/1/tasks"));
+    }
+    @Test
+    void TestDeleteTask() throws Exception {
+        // Мокаємо видалення завдання
+        doNothing().when(taskService).delete(1L);
+
+        // Виконуємо GET-запит
+        mvc.perform(get("/tasks/1/delete/todos/1"))
+                .andExpect(status().is3xxRedirection())
+                .andExpect(redirectedUrl("/todos/1/tasks"));
+    }
+
 
 }
