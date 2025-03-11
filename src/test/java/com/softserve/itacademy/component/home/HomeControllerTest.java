@@ -1,3 +1,7 @@
+// Це тестовий коментар для перевірки Git
+
+
+
 package com.softserve.itacademy.component.home;
 
 import com.softserve.itacademy.controller.HomeController;
